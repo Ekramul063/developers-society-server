@@ -97,13 +97,15 @@ async function run() {
             const result = await blogsCollection.findOne(query);
             res.send(result);
         })
+
         //single person blog
-        // app.get('/blogs/:email',async(req,res)=>{
-        //     const email = req.params.email;
-        //     const query = {regEmail:email};
-        //     const result = await blogsCollection.find(query).toArray;
-        //     res.send(result);
-        // })
+        app.get('/blogs/:email',async(req,res)=>{
+            const email = req.params.email;
+            const query ={regEmail:email};
+            console.log(query);
+            const result = await blogsCollection.find(query).toArray();
+            res.send(result);
+        })
 
           //get all blogs with media
           app.get('/blogs-media',async(req,res)=>{
