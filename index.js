@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
 require('dotenv').config();
@@ -12,6 +12,7 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@clu
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 async function run() {
     try {
+        // client.connect();
         const usersCollection = client.db('developers-society').collection('users');
         const usersInfoCollection = client.db('developers-society').collection('usersInfo');
         const blogsCollection = client.db('developers-society').collection('blogs');
@@ -82,32 +83,40 @@ async function run() {
             res.send(result);
         })
         
-        //blogs
         //get all blogs
         app.get('/blogs',async(req,res)=>{
             const query ={};
             const result = await blogsCollection.find(query).toArray();
             res.send(result);
         });
-        //get all blogs with media
-        app.get('/blogs-media',async(req,res)=>{
+        //get single blog
+        app.get('/blogs-single/:id',async(req,res)=>{
+            const id = req.params.id;
+            const query ={_id:new ObjectId(id)};
+            console.log(query);
+            const result = await blogsCollection.findOne(query);
+            res.send(result);
+        })
+        //single person blog
+        // app.get('/blogs/:email',async(req,res)=>{
+        //     const email = req.params.email;
+        //     const query = {regEmail:email};
+        //     const result = await blogsCollection.find(query).toArray;
+        //     res.send(result);
+        // })
+
+          //get all blogs with media
+          app.get('/blogs-media',async(req,res)=>{
             const query ={media:true};
-            const result = await blogsCollection.find(query).toArray();
+            const result = await blogsCollection.find(query).sort({react:-1}).limit(3).toArray();
             res.send(result);
         });
         //get all blogs without media
         app.get('/blogs-text',async(req,res)=>{
             const query ={media:false};
-            const result = await blogsCollection.find(query).toArray();
+            const result = await blogsCollection.find(query).sort({react:-1}).limit(3).toArray();
             res.send(result);
         });
-        //single person blog
-        app.get('/blogs/:email',async(req,res)=>{
-            const email = req.params.email;
-            const query = {email:email};
-            const result = await blogsCollection.find(query).toArray;
-            res.send(result);
-        })
         //insert post
         app.post('/blogs',async(req,res)=>{
             const blog = req.body;
